@@ -6,7 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 from redbot.core import checks, commands, Config
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -25,9 +25,9 @@ class FFEmbed(BaseCog):
         self.config.register_guild(enabled=True, disabled_channels=[])
 
     @commands.guild_only()
-    @commands.command()
+    @commands.command(name="ffreset")
     @checks.is_owner()
-    async def ffreset(self, ctx):
+    async def reset(self, ctx):
         """
         Reset FFEmbed's config for this server
         """
@@ -105,7 +105,7 @@ class FFEmbed(BaseCog):
             "http[s]?://(?:www.)?(?:(?:m.)?fanfiction.net/s/\d+/\d+/"
             "(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),])+|"
             "archiveofourown.org/works/\d+(?:/chapters/\d+)?|"
-            "siye.co.uk/siye/viewstory.php\?sid=\d+(?:&chapter=\d+)?)"
+            "siye.co.uk/(?:siye/)?viewstory.php\?sid=\d+(?:&chapter=\d+)?)"
         )
         urls = re.findall(url_regex, message)
         return urls
