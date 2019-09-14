@@ -8,7 +8,7 @@ from redbot.core import checks, commands, Config
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
 
 
-__version__ = "1.0"
+__version__ = "1.0.1"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -43,7 +43,7 @@ class FFPicker(BaseCog):
                 f"**{idx}** [{story['title']}]({story['link']}) "
                 f"by {story['author']}\n"
             )
-            if idx % 2 == 0:
+            if idx % 10 == 0:
                 listing += "\n"
 
         embeds = []
@@ -72,7 +72,7 @@ class FFPicker(BaseCog):
             "in this server? Type 'yes' to proceed."
         )
         try:
-            msg = await self.bot.wait_for(
+            await self.bot.wait_for(
                 "message", check=lambda m: m.content.lower() == "yes", timeout=8
             )
         except asyncio.TimeoutError:
