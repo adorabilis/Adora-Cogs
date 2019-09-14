@@ -6,7 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 from redbot.core import checks, commands, Config
 
-__version__ = "1.0.2"
+__version__ = "1.0.3"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -203,9 +203,14 @@ class FFEmbed(BaseCog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        enabled = await self.config.guild(message.guild).enabled()
-        disabled_channels = await self.config.guild(message.guild).disabled_channels()
-        if not enabled or message.channel.id in disabled_channels:
+        prefix = await self.bot.db.guild(message.guild).prefix()
+        if message.author.bot or message.content.startswith(tuple(prefix)):
+            return
+        else:
+            enabled = await self.config.guild(message.guild).enabled()
+            disabled_ch = await self.config.guild(message.guild).disabled_channels()
+
+        if not enabled or message.channel.id in disabled_ch:
             pass
         else:
             urls = self.parse_url(message.content)
@@ -214,8 +219,9 @@ class FFEmbed(BaseCog):
                 try:
                     page = self.fetch_url(url)
                     metadata = self.parse(page, url)
-                    em = self.format_embed(metadata)
-                    await message.channel.send(embed=em)
                 except Exception as e:
                     print(e)
                     await message.channel.send("Failed to retrieve story.")
+                else:
+                    em = self.format_embed(metadata)
+                    await message.channel.send(embed=em)
