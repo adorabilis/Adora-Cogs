@@ -6,7 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 from redbot.core import checks, commands, Config
 
-__version__ = "1.0"
+__version__ = "1.0.1"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -112,6 +112,7 @@ class FFEmbed(BaseCog):
 
     def fetch_url(self, url):
         resp = self.session.get(url, timeout=8)
+        resp.encoding = "cp1252"
         page = BeautifulSoup(resp.text, "html.parser")
         return page
 
@@ -159,7 +160,7 @@ class FFEmbed(BaseCog):
         rows = table_cell.strip().split("\n")
         author = page.find("font").next_sibling.next_sibling
         title = page.find("h3")
-        desc = rows[6]
+        desc = rows[6][9:]
         category = rows[0]
         characters = rows[1][:11] + " " + rows[1][11:]
         genres = rows[2]
@@ -171,7 +172,7 @@ class FFEmbed(BaseCog):
             "author": author.get_text(),
             "author_link": base + author["href"],
             "title": title.get_text(),
-            "desc": rows[6][9:],
+            "desc": desc,
             "footer": f"{category} ∙ {characters} ∙ {genres} ∙ {rating}",
         }
 
@@ -213,10 +214,8 @@ class FFEmbed(BaseCog):
                 try:
                     page = self.fetch_url(url)
                     metadata = self.parse(page, url)
+                    em = self.format_embed(metadata)
+                    await message.channel.send(embed=em)
                 except Exception as e:
                     print(e)
                     await message.channel.send("Failed to retrieve story.")
-                    continue
-                else:
-                    em = self.format_embed(metadata)
-                    await message.channel.send(embed=em)
