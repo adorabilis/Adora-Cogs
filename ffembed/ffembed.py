@@ -36,11 +36,11 @@ class FFEmbed(BaseCog):
             "this server? Type 'yes' to proceed."
         )
         try:
-            msg = await self.bot.wait_for(
+            await self.bot.wait_for(
                 "message", check=lambda m: m.content.lower() == "yes", timeout=8
             )
         except asyncio.TimeoutError:
-            await ctx.send("Command timed out. No changes were made.")
+            await ctx.send("No confirmation received. No changes were made.")
         else:
             await self.config.guild(ctx.guild).clear()
             await ctx.send("FFEmbed's config for this server has been reset.")
