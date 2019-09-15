@@ -9,7 +9,7 @@ from redbot.core import checks, commands, Config
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
 
 
-__version__ = "1.1.1"
+__version__ = "1.1.2"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -64,7 +64,7 @@ class FFPicker(BaseCog):
                 name=f"{ctx.guild.name}'s Story Collection", icon_url=ctx.guild.icon_url
             )
             em.set_footer(
-                text=f"Page {idx} of {len(pages)} • Total stories: {len(stories)}"
+                text=f"Page {idx:,} of {len(pages):,} • Total stories: {len(stories):,}"
             )
             embeds.append(em)
 
@@ -243,7 +243,7 @@ class FFPicker(BaseCog):
                 stories_len = len(stories)
             msg = (
                 f"**{metadata['title']}** by **{metadata['author']}** "
-                f"has been added to the collection as story #{stories_len}."
+                f"has been added to the collection as story #{stories_len:,}."
             )
             em = self.format_embed(metadata)
             await ctx.send(msg, embed=em)
@@ -285,7 +285,7 @@ class FFPicker(BaseCog):
                 user = "Unknown Member" if not user else user.display_name
                 await ctx.send(
                     f"**{story['title']}** by **{story['author']}** "
-                    f"(story #{idx+1} added by {user}) has been removed."
+                    f"(story #{num:,} added by {user}) has been removed."
                 )
             else:
                 await ctx.send(
@@ -314,7 +314,7 @@ class FFPicker(BaseCog):
             story = stories[idx]
             url = story["link"]
         except IndexError:
-            await ctx.send("No story found with that index number. No story removed.")
+            await ctx.send("No story found with that index number. Nothing to show.")
             return
 
         try:
@@ -322,11 +322,11 @@ class FFPicker(BaseCog):
             metadata = self.parse(page, url)
         except Exception as e:
             print(e)
-            await ctx.send(f"Failed to retrieve and show story #{idx+1}.")
+            await ctx.send(f"Failed to retrieve and show story #{num:,}.")
         else:
             user = ctx.guild.get_member(story["user_id"])
             user = "Unknown Member" if not user else user.display_name
-            msg = f"Showing story #{idx+1} added by {user}."
+            msg = f"Showing story #{num:,} added by {user}."
             em = self.format_embed(metadata)
             await ctx.send(msg, embed=em)
 
