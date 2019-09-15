@@ -2,7 +2,6 @@ import asyncio
 import discord
 import re
 import requests
-import time
 
 from bs4 import BeautifulSoup
 from random import randint
@@ -31,10 +30,19 @@ class FFPicker(BaseCog):
 
     @commands.guild_only()
     @commands.group(name="ffpicker", invoke_without_command=True)
-    async def picker(self, ctx, page_num: int = 1):
+    async def picker(self, ctx, page_num="1"):
         """
         Show the curated collection of stories in this server
         """
+        if not page_num.isdigit():
+            await self.bot.send_help_for(ctx, ctx.command)
+            return
+        elif int(page_num) < 1:
+            await ctx.send("Page number must be a positive integer.")
+            return
+        else:
+            page_num = int(page_num)
+
         listing = ""
         stories = await self.config.guild(ctx.guild).stories()
         if not stories:
@@ -63,7 +71,7 @@ class FFPicker(BaseCog):
         await menu(ctx, embeds, DEFAULT_CONTROLS, page=page_num - 1)
 
     @commands.guild_only()
-    @picker.command()
+    @picker.command(hidden=True)
     async def help(self, ctx):
         """
         Show FFPicker help manual
@@ -198,6 +206,7 @@ class FFPicker(BaseCog):
         """
         Add a story to the collection
         """
+        await ctx.trigger_typing()
         url = self.parse_url(url)
         if not url:
             await ctx.send("Invalid link. No story added.")
@@ -210,52 +219,63 @@ class FFPicker(BaseCog):
         except Exception as e:
             print(e)
             await ctx.send("Failed to retrieve and add story.")
+            return
+
+        guild_conf = self.config.guild(ctx.guild)
+        if any(
+            story["title"] == metadata["title"]
+            and story["author"] == metadata["author"]
+            for story in await guild_conf.stories()
+        ):
+            await ctx.send(
+                "That story already exists in the collection. "
+                "Duplicate stories will not be added."
+            )
         else:
-            guild_conf = self.config.guild(ctx.guild)
-            if any(
-                story["title"] == metadata["title"]
-                and story["author"] == metadata["author"]
-                for story in await guild_conf.stories()
-            ):
-                await ctx.send(
-                    "That story already exists in the collection. "
-                    "Duplicate stories will not be added."
-                )
-            else:
-                async with guild_conf.stories() as stories:
-                    story = {
-                        "title": metadata["title"],
-                        "author": metadata["author"],
-                        "link": metadata["link"],
-                        "user_id": ctx.author.id,
-                    }
-                    stories.append(story)
-                    stories_len = len(stories)
-                msg = (
-                    f"**{metadata['title']}** by **{metadata['author']}** "
-                    f"has been added to the collection as story #{stories_len}."
-                )
-                em = self.format_embed(metadata)
-                await ctx.send(msg, embed=em)
+            async with guild_conf.stories() as stories:
+                story = {
+                    "title": metadata["title"],
+                    "author": metadata["author"],
+                    "link": metadata["link"],
+                    "user_id": ctx.author.id,
+                }
+                stories.append(story)
+                stories_len = len(stories)
+            msg = (
+                f"**{metadata['title']}** by **{metadata['author']}** "
+                f"has been added to the collection as story #{stories_len}."
+            )
+            em = self.format_embed(metadata)
+            await ctx.send(msg, embed=em)
 
     @commands.guild_only()
     @picker.command(name="remove")
-    async def removefic(self, ctx, num: int):
+    async def removefic(self, ctx, num):
         """
         Remove a story from the collection by its index number
         """
+        if not num.isdigit():
+            await self.bot.send_help_for(ctx, ctx.command)
+            return
+        elif int(num) < 1:
+            await ctx.send("Index number must be a positive integer.")
+            return
+        else:
+            num = int(num)
+
+        await ctx.trigger_typing()
         guild_conf = self.config.guild(ctx.guild)
         async with guild_conf.stories() as stories:
-            if abs(num) > len(stories) or num == 0:
-                await ctx.send("Invalid index number. No story removed.")
-                return
-            elif num < 0:
-                idx = len(stories) - num - 1
-            else:
+            try:
                 idx = num - 1
+                story = stories[idx]
+                user = ctx.guild.get_member(story["user_id"])
+            except IndexError:
+                await ctx.send(
+                    "No story found with that index number. No story removed."
+                )
+                return
 
-            story = stories[idx]
-            user = ctx.guild.get_member(story["user_id"])
             if (
                 user.id == ctx.author.id
                 or await self.bot.is_owner(ctx.author)
@@ -274,23 +294,29 @@ class FFPicker(BaseCog):
 
     @commands.guild_only()
     @picker.command(name="show")
-    async def showfic(self, ctx, num: int):
+    async def showfic(self, ctx, num):
         """
         Show a story from the collection by its index number
         """
-        stories = await self.config.guild(ctx.guild).stories()
-        if abs(num) > len(stories) or num == 0:
-            await ctx.send(
-                f"Please keep the index number between 1 and {len(stories)}."
-            )
+        if not num.isdigit():
+            await self.bot.send_help_for(ctx, ctx.command)
             return
-        elif num < 0:
-            idx = len(stories) - num - 1
+        elif int(num) < 1:
+            await ctx.send("Index number must be a positive integer.")
+            return
         else:
-            idx = num - 1
+            num = int(num)
 
-        story = stories[idx]
-        url = story["link"]
+        await ctx.trigger_typing()
+        stories = await self.config.guild(ctx.guild).stories()
+        try:
+            idx = num - 1
+            story = stories[idx]
+            url = story["link"]
+        except IndexError:
+            await ctx.send("No story found with that index number. No story removed.")
+            return
+
         try:
             page = self.fetch_url(url)
             metadata = self.parse(page, url)
@@ -312,4 +338,5 @@ class FFPicker(BaseCog):
         """
         stories = await self.config.guild(ctx.guild).stories()
         cmd = self.bot.get_command("ffpicker show")
-        await ctx.invoke(cmd, num=randint(1, len(stories)))
+        random_num = randint(1, len(stories))
+        await ctx.invoke(cmd, num=str(random_num))
