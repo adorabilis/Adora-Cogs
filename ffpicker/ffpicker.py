@@ -254,13 +254,23 @@ class FFPicker(BaseCog):
             else:
                 idx = num - 1
 
-            story = stories.pop(idx)
+            story = stories[idx]
             user = ctx.guild.get_member(story["user_id"])
-            user = "Unknown Member" if not user else user.display_name
-            await ctx.send(
-                f"**{story['title']}** by **{story['author']}** "
-                f"(story #{idx+1} added by {user}) has been removed."
-            )
+            if (
+                user.id == ctx.author.id
+                or await self.bot.is_owner(ctx.author)
+                or ctx.guild.permissions_for(ctx.author).administrator
+            ):
+                stories.pop(idx)
+                user = "Unknown Member" if not user else user.display_name
+                await ctx.send(
+                    f"**{story['title']}** by **{story['author']}** "
+                    f"(story #{idx+1} added by {user}) has been removed."
+                )
+            else:
+                await ctx.send(
+                    "You can only remove stories you added. No story removed."
+                )
 
     @commands.guild_only()
     @picker.command(name="show")
