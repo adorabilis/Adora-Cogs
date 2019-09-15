@@ -68,10 +68,7 @@ class FFPicker(BaseCog):
         """
         Show FFPicker help manual
         """
-        cmd = self.bot.get_command("help")
-        prefix = await self.bot.db.guild(ctx.guild).prefix()
-        ctx.message.content = prefix + cmd.name + " " + ctx.command.full_parent_name
-        await self.bot.process_commands(ctx.message)
+        await self.bot.send_help_for(ctx, ctx.command.parent)
 
     @commands.guild_only()
     @picker.command()
