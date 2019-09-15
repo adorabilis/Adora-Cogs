@@ -2,13 +2,15 @@ import asyncio
 import discord
 import re
 import requests
+import time
 
 from bs4 import BeautifulSoup
+from random import randint
 from redbot.core import checks, commands, Config
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
 
 
-__version__ = "1.0.1"
+__version__ = "1.1"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -59,6 +61,17 @@ class FFPicker(BaseCog):
             embeds.append(em)
 
         await menu(ctx, embeds, DEFAULT_CONTROLS, page=page_num - 1)
+
+    @commands.guild_only()
+    @picker.command()
+    async def help(self, ctx):
+        """
+        Show FFPicker help manual
+        """
+        cmd = self.bot.get_command("help")
+        prefix = await self.bot.db.guild(ctx.guild).prefix()
+        ctx.message.content = prefix + cmd.name + " " + ctx.command.full_parent_name
+        await self.bot.process_commands(ctx.message)
 
     @commands.guild_only()
     @picker.command()
@@ -283,3 +296,13 @@ class FFPicker(BaseCog):
             msg = f"Showing story #{idx+1} added by {user}."
             em = self.format_embed(metadata)
             await ctx.send(msg, embed=em)
+
+    @commands.guild_only()
+    @picker.command(name="random")
+    async def showfic_random(self, ctx):
+        """
+        Show a random story from the collection
+        """
+        stories = await self.config.guild(ctx.guild).stories()
+        cmd = self.bot.get_command("ffpicker show")
+        await ctx.invoke(cmd, num=randint(1, len(stories)))
