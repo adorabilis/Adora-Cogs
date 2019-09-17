@@ -1,7 +1,7 @@
+import aiohttp
 import asyncio
 import discord
 import re
-import requests
 
 from bs4 import BeautifulSoup
 from random import randint
@@ -9,7 +9,7 @@ from redbot.core import checks, commands, Config
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
 
 
-__version__ = "1.1.3"
+__version__ = "1.1.4"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -22,11 +22,14 @@ class FFPicker(BaseCog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.session = requests.Session()
+        self.session = aiohttp.ClientSession()
         self.config = Config.get_conf(
             self, identifier=482071529, force_registration=True
         )
         self.config.register_guild(stories=[])
+
+    def cog_unload(self):
+        self.bot.loop.create_task(self.session.close())
 
     @commands.guild_only()
     @commands.group(name="ffpicker", invoke_without_command=True)
@@ -109,10 +112,10 @@ class FFPicker(BaseCog):
         urls = re.findall(url_regex, message)
         return urls
 
-    def fetch_url(self, url):
-        resp = self.session.get(url, timeout=8)
-        resp.encoding = "cp1252"
-        page = BeautifulSoup(resp.text, "html.parser")
+    async def fetch_url(self, url):
+        async with self.session.request("GET", url) as r:
+            html = await r.text()
+        page = BeautifulSoup(html, "html.parser")
         return page
 
     def parse_FanFiction(self, page, url):
@@ -214,7 +217,7 @@ class FFPicker(BaseCog):
 
         try:
             url = url[0]
-            page = self.fetch_url(url)
+            page = await self.fetch_url(url)
             metadata = self.parse(page, url)
         except Exception as e:
             print(e)
@@ -318,7 +321,7 @@ class FFPicker(BaseCog):
             return
 
         try:
-            page = self.fetch_url(url)
+            page = await self.fetch_url(url)
             metadata = self.parse(page, url)
         except Exception as e:
             print(e)
