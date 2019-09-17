@@ -1,0 +1,10 @@
+{
+	"author": "Adorabilis (Adorabilis#1303)",
+	"install_msg": "Thanks for installing FFPicker. Usage: `[p]help ffpicker`.",
+	"name": "FFPicker",
+	"short": "Save FanFiction stories to a collection",
+	"description": "Allow saving and retrieval of FanFiction, AO3, and SIYE stories to and from a curated collection. This cog is commissioned by marclapin#0812.",
+	"requirements": ["beautifulsoup4"],
+	"permissions": ["Embed Links", "Add Reactions"],
+	"tags": ["utility", "fanfiction"]
+}
