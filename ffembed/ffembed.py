@@ -1,12 +1,12 @@
+import aiohttp
 import asyncio
 import discord
 import re
-import requests
 
 from bs4 import BeautifulSoup
 from redbot.core import checks, commands, Config
 
-__version__ = "1.0.5"
+__version__ = "1.0.6"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -18,7 +18,7 @@ class FFEmbed(BaseCog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.session = requests.Session()
+        self.session = aiohttp.ClientSession()
         self.config = Config.get_conf(
             self, identifier=77232917, force_registration=True
         )
@@ -110,10 +110,10 @@ class FFEmbed(BaseCog):
         urls = re.findall(url_regex, message)
         return urls
 
-    def fetch_url(self, url):
-        resp = self.session.get(url, timeout=8)
-        resp.encoding = "cp1252"
-        page = BeautifulSoup(resp.text, "html.parser")
+    async def fetch_url(self, url):
+        async with self.session.request("GET", url) as r:
+            html = await r.text()
+        page = BeautifulSoup(html, "html.parser")
         return page
 
     def parse_FanFiction(self, page, url):
@@ -203,6 +203,10 @@ class FFEmbed(BaseCog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
+        if message.author.bot:
+            return
+        if not message.guild:
+            return
         prefix = await self.bot.db.guild(message.guild).prefix()
         if message.author.bot or message.content.startswith(tuple(prefix)):
             return
@@ -217,7 +221,7 @@ class FFEmbed(BaseCog):
             for url in urls:
                 url = url.replace("//m.", "//")
                 try:
-                    page = self.fetch_url(url)
+                    page = await self.fetch_url(url)
                     metadata = self.parse(page, url)
                 except Exception as e:
                     print(e)
