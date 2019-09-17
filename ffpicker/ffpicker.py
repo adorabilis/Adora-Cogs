@@ -9,7 +9,7 @@ from redbot.core import checks, commands, Config
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
 
 
-__version__ = "1.1.4"
+__version__ = "1.1.5"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -113,7 +113,7 @@ class FFPicker(BaseCog):
         return urls
 
     async def fetch_url(self, url):
-        async with self.session.request("GET", url) as r:
+        async with self.session.get(url, timeout=8) as r:
             html = await r.text()
         page = BeautifulSoup(html, "html.parser")
         return page

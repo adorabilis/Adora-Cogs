@@ -6,7 +6,7 @@ import re
 from bs4 import BeautifulSoup
 from redbot.core import checks, commands, Config
 
-__version__ = "1.0.6"
+__version__ = "1.0.7"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -111,7 +111,7 @@ class FFEmbed(BaseCog):
         return urls
 
     async def fetch_url(self, url):
-        async with self.session.request("GET", url) as r:
+        async with self.session.get(url, timeout=8) as r:
             html = await r.text()
         page = BeautifulSoup(html, "html.parser")
         return page
@@ -203,12 +203,13 @@ class FFEmbed(BaseCog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        if message.author.bot:
-            return
-        if not message.guild:
-            return
-        prefix = await self.bot.db.guild(message.guild).prefix()
-        if message.author.bot or message.content.startswith(tuple(prefix)):
+        if (
+            not message.guild
+            or message.author.bot
+            or message.content.startswith(
+                await self.bot.db.guild(message.guild).prefix()
+            )
+        ):
             return
         else:
             enabled = await self.config.guild(message.guild).enabled()
