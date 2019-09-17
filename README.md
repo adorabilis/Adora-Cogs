@@ -1,9 +1,11 @@
 # Adora-Cogs
 
+[![Red-DiscordBot](https://img.shields.io/badge/Red--DiscordBot-V3-red.svg)](https://github.com/Cog-Creators/Red-DiscordBot) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 | Cog | Version | Description |
 | --- | --- | --- |
-| ffembed | 1.0.5 | Automatically show FanFiction, AO3, and SIYE story info in an embed message when a supported link is detected. This cog is commissioned by marclapin#0812. |
-| ffpicker | 1.1.3 | Allow saving and retrieval of FanFiction, AO3, and SIYE stories to and from a curated collection. This cog is commissioned by marclapin#0812. |
+| ffembed | 1.0.5 | Automatically show FanFiction, AO3, and SIYE story info in an embed message when a supported link is detected. (Commissioned by marclapin#0812) |
+| ffpicker | 1.1.3 | Allow saving and retrieval of FanFiction, AO3, and SIYE stories to and from a curated collection. (Commissioned by marclapin#0812) |
 
 ## Installation
 
