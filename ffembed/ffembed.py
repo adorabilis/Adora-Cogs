@@ -6,7 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 from redbot.core import checks, commands, Config
 
-__version__ = "1.0.4"
+__version__ = "1.0.5"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -128,11 +128,11 @@ class FFEmbed(BaseCog):
             "link": url,
             "icon": "https://i.imgur.com/0eUBQHu.png",
             "thumbnail": "https:" + thumbnail["src"] if thumbnail else None,
-            "author": author.get_text(),
+            "author": author.get_text(strip=True),
             "author_link": base + author["href"],
-            "title": title.get_text(),
-            "desc": desc.get_text(),
-            "footer": " ∙ ".join(footer.get_text().split("-")[:-1]),
+            "title": title.get_text(strip=True),
+            "desc": desc.get_text(strip=True),
+            "footer": " ∙ ".join(footer.get_text(strip=True).split("-")[:-1]),
         }
 
     def parse_AO3(self, page, url):
@@ -147,10 +147,10 @@ class FFEmbed(BaseCog):
             "link": url,
             "icon": "https://i.imgur.com/oJtk1Gp.png",
             "thumbnail": None,
-            "author": author.get_text(),
+            "author": author.get_text(strip=True),
             "author_link": base + author["href"],
-            "title": title.get_text(),
-            "desc": desc.get_text(),
+            "title": title.get_text(strip=True),
+            "desc": desc.get_text(strip=True),
             "footer": f"{date} ∙ {words} ∙ {chapters}",
         }
 
@@ -169,9 +169,9 @@ class FFEmbed(BaseCog):
             "link": url,
             "icon": "https://i.imgur.com/27czS4l.jpg",
             "thumbnail": None,
-            "author": author.get_text(),
+            "author": author.get_text(strip=True),
             "author_link": base + author["href"],
-            "title": title.get_text(),
+            "title": title.get_text(strip=True),
             "desc": desc,
             "footer": f"{category} ∙ {characters} ∙ {genres} ∙ {rating}",
         }
