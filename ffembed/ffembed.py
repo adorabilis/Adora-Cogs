@@ -6,7 +6,7 @@ import re
 from bs4 import BeautifulSoup
 from redbot.core import checks, commands, Config
 
-__version__ = "1.0.8"
+__version__ = "1.0.9"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -23,6 +23,9 @@ class FFEmbed(BaseCog):
             self, identifier=77232917, force_registration=True
         )
         self.config.register_guild(enabled=True, disabled_channels=[])
+
+    def cog_unload(self):
+        self.bot.loop.create_task(self.session.close())
 
     @checks.is_owner()
     @commands.guild_only()
@@ -64,7 +67,7 @@ class FFEmbed(BaseCog):
             channels = "None"
 
         em = discord.Embed(description=desc, color=0x7289DA)
-        em.add_field(name="Disabled in Channel(s)", value=channels)
+        em.add_field(name="Disabled In Channel(s)", value=channels)
         em.set_author(name="FFEmbed Config", icon_url=self.bot.user.avatar_url)
         await ctx.send(embed=em)
 
@@ -111,9 +114,17 @@ class FFEmbed(BaseCog):
         return urls
 
     async def fetch_url(self, url):
+        if "archiveofourown" in url:
+            url = url + "?view_adult=true"
         async with self.session.get(url, timeout=8) as r:
             html = await r.text()
-        page = BeautifulSoup(html, "html.parser")
+            page = BeautifulSoup(html, "html.parser")
+        if "archiveofourown" in url and page.select("p[class='message footnote']"):
+            chapter = page.select("ul[class='actions']")[0].find("a")["href"]
+            url = "https://archiveofourown.org" + chapter
+            async with self.session.get(url, timeout=8) as r:
+                html = await r.text()
+                page = BeautifulSoup(html, "html.parser")
         return page
 
     def parse_FanFiction(self, page, url):

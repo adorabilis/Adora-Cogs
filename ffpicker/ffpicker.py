@@ -9,7 +9,7 @@ from redbot.core import checks, commands, Config
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
 
 
-__version__ = "1.1.5"
+__version__ = "1.1.6"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -81,9 +81,9 @@ class FFPicker(BaseCog):
         """
         await self.bot.send_help_for(ctx, ctx.command.parent)
 
+    @checks.is_owner()
     @commands.guild_only()
     @picker.command()
-    @checks.is_owner()
     async def reset(self, ctx):
         """
         Reset the story collection of this server
@@ -113,9 +113,17 @@ class FFPicker(BaseCog):
         return urls
 
     async def fetch_url(self, url):
+        if "archiveofourown" in url:
+            url = url + "?view_adult=true"
         async with self.session.get(url, timeout=8) as r:
             html = await r.text()
-        page = BeautifulSoup(html, "html.parser")
+            page = BeautifulSoup(html, "html.parser")
+        if "archiveofourown" in url and page.select("p[class='message footnote']"):
+            chapter = page.select("ul[class='actions']")[0].find("a")["href"]
+            url = "https://archiveofourown.org" + chapter
+            async with self.session.get(url, timeout=8) as r:
+                html = await r.text()
+                page = BeautifulSoup(html, "html.parser")
         return page
 
     def parse_FanFiction(self, page, url):
