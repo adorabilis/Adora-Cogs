@@ -4,7 +4,7 @@
 
 | Cog | Version | Description |
 | --- | --- | --- |
-| ffembed | 1.0.7 | Automatically show FanFiction, AO3, and SIYE story info in an embed message when a supported link is detected. (Commissioned by marclapin#0812) |
+| ffembed | 1.0.8 | Automatically show FanFiction, AO3, and SIYE story info in an embed message when a supported link is detected. (Commissioned by marclapin#0812) |
 | ffpicker | 1.1.5 | Allow saving and retrieval of FanFiction, AO3, and SIYE stories to and from a curated collection. (Commissioned by marclapin#0812) |
 
 ## Installation

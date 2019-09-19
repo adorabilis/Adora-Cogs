@@ -6,7 +6,7 @@ import re
 from bs4 import BeautifulSoup
 from redbot.core import checks, commands, Config
 
-__version__ = "1.0.7"
+__version__ = "1.0.8"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -24,9 +24,9 @@ class FFEmbed(BaseCog):
         )
         self.config.register_guild(enabled=True, disabled_channels=[])
 
+    @checks.is_owner()
     @commands.guild_only()
     @commands.command(name="ffreset")
-    @checks.is_owner()
     async def reset(self, ctx):
         """
         Reset FFEmbed's config for this server
@@ -45,9 +45,9 @@ class FFEmbed(BaseCog):
             await self.config.guild(ctx.guild).clear()
             await ctx.send("FFEmbed's config for this server has been reset.")
 
+    @checks.is_owner()
     @commands.guild_only()
     @commands.group(name="fftoggle", invoke_without_command=True)
-    @checks.is_owner()
     async def toggle(self, ctx):
         """
         Enable or disable FFEmbed
@@ -207,7 +207,7 @@ class FFEmbed(BaseCog):
             not message.guild
             or message.author.bot
             or message.content.startswith(
-                await self.bot.db.guild(message.guild).prefix()
+                tuple(await self.bot.db.guild(message.guild).prefix())
             )
         ):
             return
