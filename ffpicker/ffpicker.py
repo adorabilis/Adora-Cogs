@@ -9,7 +9,7 @@ from redbot.core import checks, commands, Config
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
 
 
-__version__ = "1.1.6"
+__version__ = "1.1.7"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -113,6 +113,7 @@ class FFPicker(BaseCog):
         return urls
 
     async def fetch_url(self, url):
+        # AO3 presents warning page for NSFW-tagged stories
         if "archiveofourown" in url:
             url = url + "?view_adult=true"
         async with self.session.get(url, timeout=8) as r:
@@ -168,6 +169,7 @@ class FFPicker(BaseCog):
         base = "http://siye.co.uk/"
         table_cell = page.find_all("td", attrs={"align": "left"})[1].get_text()
         rows = table_cell.strip().split("\n")
+        rows = [row for row in rows if ":" in row]  # Handle completed story
         author = page.find("font").next_sibling.next_sibling
         title = page.find("h3")
         desc = rows[6][9:]

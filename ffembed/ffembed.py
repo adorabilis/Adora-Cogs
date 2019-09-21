@@ -6,7 +6,7 @@ import re
 from bs4 import BeautifulSoup
 from redbot.core import checks, commands, Config
 
-__version__ = "1.0.9"
+__version__ = "1.0.10"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -114,6 +114,7 @@ class FFEmbed(BaseCog):
         return urls
 
     async def fetch_url(self, url):
+        # AO3 presents warning page for NSFW-tagged stories
         if "archiveofourown" in url:
             url = url + "?view_adult=true"
         async with self.session.get(url, timeout=8) as r:
@@ -169,6 +170,7 @@ class FFEmbed(BaseCog):
         base = "http://siye.co.uk/"
         table_cell = page.find_all("td", attrs={"align": "left"})[1].get_text()
         rows = table_cell.strip().split("\n")
+        rows = [row for row in rows if ":" in row]  # Handle completed story
         author = page.find("font").next_sibling.next_sibling
         title = page.find("h3")
         desc = rows[6][9:]
