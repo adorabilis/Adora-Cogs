@@ -9,7 +9,7 @@ from redbot.core import checks, commands, Config
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
 
 
-__version__ = "1.1.7"
+__version__ = "1.1.8"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -220,6 +220,7 @@ class FFPicker(BaseCog):
         Add a story to the collection
         """
         await ctx.trigger_typing()
+        url = url.replace("//m.", "//")
         url = self.parse_url(url)
         if not url:
             await ctx.send("Invalid link. No story added.")
