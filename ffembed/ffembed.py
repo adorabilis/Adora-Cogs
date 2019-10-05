@@ -6,7 +6,7 @@ import re
 from bs4 import BeautifulSoup
 from redbot.core import checks, commands, Config
 
-__version__ = "1.0.10"
+__version__ = "1.0.11"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -40,7 +40,9 @@ class FFEmbed(BaseCog):
         )
         try:
             await self.bot.wait_for(
-                "message", check=lambda m: m.content.lower() == "yes", timeout=8
+                "message",
+                check=lambda m: m.author == ctx.author and m.content.lower() == "yes",
+                timeout=8,
             )
         except asyncio.TimeoutError:
             await ctx.send("No confirmation received. No changes were made.")
@@ -151,7 +153,7 @@ class FFEmbed(BaseCog):
         base = "https://archiveofourown.org/"
         author = page.find("a", attrs={"rel": "author"})
         title = page.find("h2", attrs={"class": "title heading"})
-        desc = page.find("blockquote", attrs={"class": "userstuff"})
+        desc = page.find("div", attrs={"class": "summary module"}).p
         date = " ".join(x.get_text() for x in page.find_all(class_="published"))
         words = " ".join(x.get_text() for x in page.find_all(class_="words"))
         chapters = " ".join(x.get_text() for x in page.find_all(class_="chapters"))
