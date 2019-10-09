@@ -6,7 +6,7 @@ import re
 from bs4 import BeautifulSoup
 from redbot.core import checks, commands, Config
 
-__version__ = "1.0.11"
+__version__ = "1.0.12"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -113,6 +113,9 @@ class FFEmbed(BaseCog):
             r"siye.co.uk/(?:siye/)?viewstory.php\?sid=\d+(?:&chapter=\d+)?)"
         )
         urls = re.findall(url_regex, message)
+        urls = [url.replace("//m.", "//") for url in urls]
+        # Handle invalid certificate for SIYE
+        urls = [url.replace("https", "http") for url in urls if "siye" in url]
         return urls
 
     async def fetch_url(self, url):
@@ -235,7 +238,6 @@ class FFEmbed(BaseCog):
         else:
             urls = self.parse_url(message.content)
             for url in urls:
-                url = url.replace("//m.", "//")
                 try:
                     page = await self.fetch_url(url)
                     metadata = self.parse(page, url)
