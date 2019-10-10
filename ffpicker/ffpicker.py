@@ -9,7 +9,7 @@ from redbot.core import checks, commands, Config
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
 
 
-__version__ = "1.1.10"
+__version__ = "1.1.11"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -114,7 +114,7 @@ class FFPicker(BaseCog):
         urls = re.findall(url_regex, message)
         urls = [url.replace("//m.", "//") for url in urls]
         # Handle invalid certificate for SIYE
-        urls = [url.replace("https", "http") for url in urls if "siye" in url]
+        urls = [url.replace("https", "http") if "siye" in url else url for url in urls]
         return urls
 
     async def fetch_url(self, url):

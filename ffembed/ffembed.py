@@ -6,7 +6,7 @@ import re
 from bs4 import BeautifulSoup
 from redbot.core import checks, commands, Config
 
-__version__ = "1.0.12"
+__version__ = "1.0.13"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -115,7 +115,7 @@ class FFEmbed(BaseCog):
         urls = re.findall(url_regex, message)
         urls = [url.replace("//m.", "//") for url in urls]
         # Handle invalid certificate for SIYE
-        urls = [url.replace("https", "http") for url in urls if "siye" in url]
+        urls = [url.replace("https", "http") if "siye" in url else url for url in urls]
         return urls
 
     async def fetch_url(self, url):
