@@ -6,7 +6,7 @@ import re
 from bs4 import BeautifulSoup
 from redbot.core import checks, commands, Config
 
-__version__ = "1.0.13"
+__version__ = "1.0.14"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -107,8 +107,8 @@ class FFEmbed(BaseCog):
 
     def parse_url(self, message):
         url_regex = (
-            r"http[s]?://(?:www.)?(?:(?:m.)?fanfiction.net/s/\d+/\d+"
-            r"(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),])*|"
+            r"http[s]?://(?:www.)?(?:(?:m.)?fanfiction.net/s/\d+"
+            r"/?(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),])*|"
             r"archiveofourown.org/works/\d+(?:/chapters/\d+)?|"
             r"siye.co.uk/(?:siye/)?viewstory.php\?sid=\d+(?:&chapter=\d+)?)"
         )

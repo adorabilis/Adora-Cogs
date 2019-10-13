@@ -9,7 +9,7 @@ from redbot.core import checks, commands, Config
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
 
 
-__version__ = "1.1.11"
+__version__ = "1.1.12"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -106,8 +106,8 @@ class FFPicker(BaseCog):
 
     def parse_url(self, message):
         url_regex = (
-            r"http[s]?://(?:www.)?(?:(?:m.)?fanfiction.net/s/\d+/\d+"
-            r"(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),])*|"
+            r"http[s]?://(?:www.)?(?:(?:m.)?fanfiction.net/s/\d+"
+            r"/?(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),])*|"
             r"archiveofourown.org/works/\d+(?:/chapters/\d+)?|"
             r"siye.co.uk/(?:siye/)?viewstory.php\?sid=\d+(?:&chapter=\d+)?)"
         )
