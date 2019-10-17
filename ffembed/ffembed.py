@@ -6,7 +6,7 @@ import re
 from bs4 import BeautifulSoup
 from redbot.core import checks, commands, Config
 
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -137,13 +137,14 @@ class FFEmbed(BaseCog):
         div = page.find(id="content_wrapper_inner")
         thumbnail = div.find(id="bio").img
         author = div.span
-        desc = page.find("meta", attrs={"name": "description"})['content']
-        footer = div.find_all("td")[2].get_text().replace("id", "ID")
+        desc = page.find("meta", attrs={"name": "description"})["content"]
+        footer = div.find_all("td", {"colspan": "2"})[2]
+        footer = footer.get_text().replace("id", "ID")
         footer = footer[:6] + ":" + footer[6:]
         return {
             "link": None,
             "icon": "https://i.imgur.com/0eUBQHu.png",
-            "thumbnail": "https:" + thumbnail['data-original'] if thumbnail else None,
+            "thumbnail": "https:" + thumbnail["data-original"] if thumbnail else None,
             "author": author.get_text(strip=True),
             "author_link": url,
             "title": None,
