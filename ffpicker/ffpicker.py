@@ -9,7 +9,7 @@ from redbot.core import checks, commands, Config
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
 
 
-__version__ = "1.1.12"
+__version__ = "1.1.13"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -106,8 +106,8 @@ class FFPicker(BaseCog):
 
     def parse_url(self, message):
         url_regex = (
-            r"http[s]?://(?:www.)?(?:(?:m.)?fanfiction.net/s/\d+"
-            r"/?(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),])*|"
+            r"https?://(?:www.)?(?:(?:m.)?fanfiction.net/"
+            r"s/\d+/?(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),])*|"
             r"archiveofourown.org/works/\d+(?:/chapters/\d+)?|"
             r"siye.co.uk/(?:siye/)?viewstory.php\?sid=\d+(?:&chapter=\d+)?)"
         )
@@ -133,7 +133,7 @@ class FFPicker(BaseCog):
         return page
 
     def parse_FanFiction(self, page, url):
-        base = "https://fanfiction.net/"
+        base = "https://fanfiction.net"
         div = page.find(id="profile_top")
         thumbnail = div.find("img", attrs={"class": "cimage"})
         author = div.find("a", attrs={"class": "xcontrast_txt"})
@@ -152,10 +152,11 @@ class FFPicker(BaseCog):
         }
 
     def parse_AO3(self, page, url):
-        base = "https://archiveofourown.org/"
+        base = "https://archiveofourown.org"
         author = page.find("a", attrs={"rel": "author"})
         title = page.find("h2", attrs={"class": "title heading"})
-        desc = page.find("div", attrs={"class": "summary module"}).p
+        desc = page.find("div", attrs={"class": "summary module"})
+        desc = "Summary not specified." if desc is None else desc.p.get_text(strip=True)
         date = " ".join(x.get_text() for x in page.find_all(class_="published"))
         words = " ".join(x.get_text() for x in page.find_all(class_="words"))
         chapters = " ".join(x.get_text() for x in page.find_all(class_="chapters"))
@@ -166,12 +167,12 @@ class FFPicker(BaseCog):
             "author": author.get_text(strip=True),
             "author_link": base + author["href"],
             "title": title.get_text(strip=True),
-            "desc": desc.get_text(strip=True),
+            "desc": desc,
             "footer": f"{date} ∙ {words} ∙ {chapters}",
         }
 
     def parse_SIYE(self, page, url):
-        base = "http://siye.co.uk/"
+        base = "http://siye.co.uk"
         table_cell = page.find_all("td", attrs={"align": "left"})[1].get_text()
         rows = table_cell.strip().split("\n")
         rows = [row for row in rows if ":" in row]  # Handle completed story
