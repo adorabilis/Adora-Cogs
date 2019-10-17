@@ -6,7 +6,7 @@ import re
 from bs4 import BeautifulSoup
 from redbot.core import checks, commands, Config
 
-__version__ = "1.0.15"
+__version__ = "1.1.0"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -108,7 +108,7 @@ class FFEmbed(BaseCog):
     def parse_url(self, message):
         url_regex = (
             r"https?://(?:www.)?(?:(?:m.)?fanfiction.net/"
-            r"s/\d+/?(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),])*|"
+            r"(?:(?:(?:s|u)/\d+/?)|~)(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),])*|"
             r"archiveofourown.org/works/\d+(?:/chapters/\d+)?|"
             r"siye.co.uk/(?:siye/)?viewstory.php\?sid=\d+(?:&chapter=\d+)?)"
         )
@@ -132,6 +132,24 @@ class FFEmbed(BaseCog):
                 html = await r.text()
                 page = BeautifulSoup(html, "html.parser")
         return page
+
+    def parse_FanFiction_author(self, page, url):
+        div = page.find(id="content_wrapper_inner")
+        thumbnail = div.find(id="bio").img
+        author = div.span
+        desc = page.find("meta", attrs={"name": "description"})['content']
+        footer = div.find_all("td")[2].get_text().replace("id", "ID")
+        footer = footer[:6] + ":" + footer[6:]
+        return {
+            "link": None,
+            "icon": "https://i.imgur.com/0eUBQHu.png",
+            "thumbnail": "https:" + thumbnail['data-original'] if thumbnail else None,
+            "author": author.get_text(strip=True),
+            "author_link": url,
+            "title": None,
+            "desc": desc,
+            "footer": " ∙ ".join(footer.split(", ")),
+        }
 
     def parse_FanFiction(self, page, url):
         base = "https://fanfiction.net"
@@ -197,7 +215,10 @@ class FFEmbed(BaseCog):
 
     def parse(self, page, url):
         if "fanfiction" in url:
-            return self.parse_FanFiction(page, url)
+            if "/s/" in url:
+                return self.parse_FanFiction(page, url)
+            else:
+                return self.parse_FanFiction_author(page, url)
         elif "archiveofourown" in url:
             return self.parse_AO3(page, url)
         elif "siye" in url:
