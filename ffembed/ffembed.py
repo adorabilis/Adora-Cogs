@@ -6,7 +6,7 @@ import re
 from bs4 import BeautifulSoup
 from redbot.core import checks, commands, Config
 
-__version__ = "1.1.1"
+__version__ = "1.1.2"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -113,9 +113,15 @@ class FFEmbed(BaseCog):
             r"siye.co.uk/(?:siye/)?viewstory.php\?sid=\d+(?:&chapter=\d+)?)"
         )
         urls = re.findall(url_regex, message)
-        urls = [url.replace("//m.", "//") for url in urls]
-        # Handle invalid certificate for SIYE
-        urls = [url.replace("https", "http") if "siye" in url else url for url in urls]
+        for i, url in enumerate(urls):
+            url = url.replace("//m.", "//")
+            # Handle invalid certificate for SIYE
+            url = url.replace("https", "http") if "siye" in url else url
+            # Redirect FanFiction stories to chapter 1
+            if re.search(r"fanfiction.net/s/\d+", url):
+                sp = url.split("/")
+                url = "/".join(sp[:5] + ["1"] + sp[6:])
+            urls[i] = url
         return urls
 
     async def fetch_url(self, url):
@@ -160,6 +166,7 @@ class FFEmbed(BaseCog):
         title = div.find("b", attrs={"class": "xcontrast_txt"})
         desc = div.find("div", attrs={"class": "xcontrast_txt"})
         footer = div.find("span", attrs={"class": "xgray xcontrast_txt"})
+        footer = ": ".join(x.strip() for x in footer.get_text().split(":"))
         return {
             "link": url,
             "icon": "https://i.imgur.com/0eUBQHu.png",
@@ -168,7 +175,7 @@ class FFEmbed(BaseCog):
             "author_link": base + author["href"],
             "title": title.get_text(strip=True),
             "desc": desc.get_text(strip=True),
-            "footer": " ∙ ".join(footer.get_text(strip=True).split("-")[:-1]),
+            "footer": " ∙ ".join(footer.split("-")[:-1]),
         }
 
     def parse_AO3(self, page, url):
