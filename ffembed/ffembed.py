@@ -6,7 +6,7 @@ import re
 from bs4 import BeautifulSoup
 from redbot.core import checks, commands, Config
 
-__version__ = "1.1.2"
+__version__ = "1.1.3"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -185,8 +185,11 @@ class FFEmbed(BaseCog):
         desc = page.find("div", attrs={"class": "summary module"})
         desc = "Summary not specified." if desc is None else desc.p.get_text(strip=True)
         date = " ".join(x.get_text() for x in page.find_all(class_="published"))
-        words = " ".join(x.get_text() for x in page.find_all(class_="words"))
+        status = " ".join(x.get_text() for x in page.find_all(class_="status"))
         chapters = " ".join(x.get_text() for x in page.find_all(class_="chapters"))
+        words = f"Words: {int(page.find_all(class_='words')[1].get_text()):,}"
+        kudos = f"Kudos: {int(page.find_all(class_='kudos')[1].get_text()):,}"
+        hits = f"Hits: {int(page.find_all(class_='hits')[1].get_text()):,}"
         return {
             "link": url,
             "icon": "https://i.imgur.com/oJtk1Gp.png",
@@ -195,7 +198,7 @@ class FFEmbed(BaseCog):
             "author_link": base + author["href"],
             "title": title.get_text(strip=True),
             "desc": desc,
-            "footer": f"{date} ∙ {words} ∙ {chapters}",
+            "footer": f"{date} ∙ {status} ∙ {chapters} ∙ {words} ∙ {kudos} ∙ {hits}",
         }
 
     def parse_SIYE(self, page, url):
