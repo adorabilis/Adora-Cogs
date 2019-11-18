@@ -9,7 +9,7 @@ from redbot.core import checks, commands, Config
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
 
 
-__version__ = "1.1.15"
+__version__ = "1.1.16"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -195,10 +195,10 @@ class FFPicker(BaseCog):
         rating = rows[4]
         return {
             "link": url,
-            "icon": "https://i.imgur.com/27czS4l.jpg",
+            "icon": "https://i.imgur.com/TXRYIBN.jpg",
             "thumbnail": None,
             "author": author.get_text(strip=True),
-            "author_link": base + author["href"],
+            "author_link": base + "/" + author["href"],
             "title": title.get_text(strip=True),
             "desc": desc,
             "footer": f"{category} ∙ {characters} ∙ {genres} ∙ {rating}",
