@@ -1,10 +1,11 @@
 {
-	"author": "Adorabilis (Adorabilis#1303)",
+	"author": ["Adorabilis (Adorabilis#1303)"],
 	"install_msg": "Thanks for installing FFEmbed. Usage: `[p]help ffembed`.",
 	"name": "FFEmbed",
 	"short": "Show FanFiction story in embed",
 	"description": "Automatically show FanFiction, AO3, and SIYE story info in an embed message when a supported link is detected. This cog is commissioned by marclapin#0812.",
 	"requirements": ["beautifulsoup4"],
 	"permissions": ["Embed Links"],
-	"tags": ["utility", "fanfiction"]
+	"tags": ["utility", "fanfiction"],
+	"min_python_version": [3, 7, 0]
 }
