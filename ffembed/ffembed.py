@@ -6,7 +6,7 @@ import re
 from bs4 import BeautifulSoup
 from redbot.core import checks, commands, Config
 
-__version__ = "1.1.4"
+__version__ = "1.1.5"
 
 BaseCog = getattr(commands, "Cog", object)
 
@@ -254,12 +254,16 @@ class FFEmbed(BaseCog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
+        try:
+            prefixes = tuple(await self.bot.get_valid_prefixes(message.guild))
+        except AttributeError:
+            # Maintain compatibility for Red <3.2
+            prefixes = tuple(await self.bot.db.guild(message.guild).prefix())
+
         if (
             not message.guild
             or message.author.bot
-            or message.content.startswith(
-                tuple(await self.bot.db.guild(message.guild).prefix())
-            )
+            or message.content.startswith(prefixes)
         ):
             return
         else:
